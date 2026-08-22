@@ -8,6 +8,10 @@ load('TC4_Rotate_Assy_Assist')
 % Time length Set
 [t_l,~] = size(SteerWhlAg_SteerWhlAgRaw_Ag_t0);
 
+% Tuning parameter 
+% Q : Process noise matrix
+% R : Measurement Matrix
+
 Q_el = [10  10 10 10];
 Q = diag(Q_el);
 Q = (250)*ones(4);
@@ -26,14 +30,19 @@ w_tors = zeros(t_l,1);
 % x3 = theta_out
 % x4 = w_out
 
-
+% Th_in  : Inlet Steering angle
+% Th_out : Outlet Steering angle
 Th_in= SteerWhlAg_SteerWhlAgRaw_Ag_t0;
 Th_out = SteerWhlAg_SteerWhlAgRaw_Ag_t0 - SteerWhlTq_SteerWhlTq1Raw_Tq_t0(1:t_l)*(1480/(13*2.5));
+
 for i = 1:t_l-3
     dt_2 = t0(i+2)-t0(i+1);
 end
 
 dt = mean(dt_2);
+
+% calculate Angle speed
+
 for i = 1:t_l-3
     w_tors(i) = (Th_in(i)-Th_out(i))/dt;
 end
@@ -45,15 +54,17 @@ J = 1.25; %kg*m^2;
 K = 2.5; %Nm;
 B = 0;
 
-T_in =20000;
+% System input 
+% T_in   : driver input torque
+% T_load : system load torque 
+T_in =10000;
 T_load =-10000;
 
 A = [0 1 0 0; -K/J -B/J K/J B/J; 0 0 0 1;K/J B/J -K/J -B/J];
 Bu = (1/J)*[0 T_in 0 -T_load]';
 
-
-
 % System Model Parameter
+
 A_d = (eye(4)+dt*A);
 B_du = dt*Bu;
 
@@ -62,6 +73,7 @@ B_du = dt*Bu;
 
 InitCmplFlg = 0;
 
+% Pre-processing raw data to actual degree data (TAS Sensor)
 % make measurement data from Raw Data
 [A1_Deg,T1_Deg,Diff_Deg] = MakeBit_to_Deg(SteerWhlAg_A1RawData_Cnt_t0(:),SteerWhlAg_T1RawData_Cnt_t0(:));
 
@@ -87,20 +99,16 @@ for i = 1:t_l
         Kg = KgainCalc(P_k,H_meas(x_k(1),x_k(3)),R);
         
         % Linear H
-        x_k = xhatEstimn(z_k,x_k,Kg,H_meas(x_k(1),x_k(3)));
+        x_k = xhatEstimn_Trigo(z_k,x_k,Kg,H_meas(x_k(1),x_k(3)));
 
         % using h function
         inov_log(:,i) = z_k-h(x_k);
 
         if abs(inov_log(1,i)) >250
         else
-        
-        
-        x_k = xhatEstimn(z_k,x_k,Kg);
+            x_k = xhatEstimn(z_k,x_k,Kg);
         end
-
-
-       
+        
         % Probability Update
         P_k = PEstimn(H_meas(x_k(1),x_k(3)),Kg,P_k);
 
