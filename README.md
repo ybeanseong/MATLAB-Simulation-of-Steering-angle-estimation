@@ -1,2 +1,8 @@
 # MATLAB-Simulation-of-Steering-angle-estimation
 Steering angle estimation based on Extended Kalman filter 2024 KSAE paper 
+
+[Abstract]
+In Electric Power Steering (EPS) systems, the vernier algorithm calculates the absolute steering angle by mapping torque and angle signals in a 1:1 ratio. However, when the travel distances of the two sensors become inconsistent due to gear wear or strong magnetic interference, a phenomenon known as "vernier reserve" occurs. This leads to distorted steering angle calculations and can provide unexpected assist outputs, posing safety risks. Existing fault-display methods prevent the presentation of distorted steering angles but have limitations in providing continuous steering angle inputs. This study proposes a method to enhance the robustness of the vernier algorithm against faults by utilizing an Extended Kalman Filter. The system model is constructed as a dynamic model of a rotating torsion bar applying Newton's laws, and the measurement model employs the Jacobian matrix of the vernier algorithm. This approach excludes incorrect measurements from the Torque Angle Sensor (TAS) during the estimation process and incorporates the system model's estimates to provide continuous torque and steering angle inputs even under fault conditions. The expected results include minimizing steering angle distortion caused by sensor mismeasurements and reducing control impact by leveraging the estimated steering angle. This is anticipated to achieve fault tolerance in angle calculations.
+
+Paper link : 
+https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12046940
